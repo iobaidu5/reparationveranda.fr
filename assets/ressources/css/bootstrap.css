@@ -4482,6 +4482,16 @@ a:visited {
   transition: .3s
 }
 
+@media (max-width:768px) {
+.backTotop {
+    width: 25px;
+    font-size: 15px;
+    height: 25px;
+    line-height: 25px;
+}
+
+}
+
 .backTotop a {
   color: #fff
 }
@@ -4654,7 +4664,11 @@ a:visited {
   position: relative;
   height: 100vh;
   height: 100dvh;
-  min-height: 600px
+  /* The slide is 1600x1089 (h = 0.68 x w) and carries the "Avant" / "Après"
+     labels at its far left and right edges. Capping the hero so it is never
+     narrower than the slide's ratio keeps object-fit: cover scaling by width,
+     which crops top/bottom only — the labels always stay in frame. */
+  max-height: 67.5vw
 }
 
 .bandeau:before {
@@ -5618,8 +5632,10 @@ th {
 }
 
 @media (min-width: 992px) and (max-width:1200px) {
+  /* the live site pulls the badges 2rem outside the container here, which puts
+     them past the right edge of the viewport — keep them on the container */
   .bgrge {
-    right: -2rem;
+    right: 0;
   }
 }
 
@@ -5646,17 +5662,37 @@ header #menu .col-sm-12 {
   position: relative
 }
 
-/* The slide and the form share one grid cell, so the white card always sits
-   on top of the image (bottom-aligned), whatever the form's height. */
+/* One column, two rows: the slide spans both, the form owns the bottom row and
+   the baseline centres itself in whatever is left — so the card always sits on
+   the image and never reaches the title, whatever the form's height. */
 .home-hero {
   display: grid;
-  grid-template-columns: 100%
+  grid-template-columns: 100%;
+  grid-template-rows: 1fr auto
 }
 
 .home-hero > .bandeau,
+.home-hero > .lang,
 .home-hero > .hero-form {
-  grid-column: 1;
-  grid-row: 1
+  grid-column: 1
+}
+
+.home-hero > .bandeau {
+  grid-row: 1 / span 2
+}
+
+.home-hero > .lang {
+  grid-row: 1;
+  /* the header floats over the slide: offset it so the baseline centres in the
+     space that is actually visible, between the menu and the form card */
+  padding-top: 175px;
+  position: static;
+  -webkit-transform: none;
+  -ms-transform: none;
+  transform: none;
+  align-self: center;
+  justify-self: center;
+  z-index: 10
 }
 
 .hero-form {
@@ -5665,6 +5701,7 @@ header #menu .col-sm-12 {
 }
 
 .home-hero > .hero-form {
+  grid-row: 2;
   align-self: end;
   padding: 0 0 40px
 }
@@ -5673,12 +5710,6 @@ header #menu .col-sm-12 {
   margin-top: 0
 }
 
-/* short viewports: lift the baseline so the form card doesn't reach it */
-@media (min-width: 768px) and (max-height: 800px) {
-  .home-hero .lang {
-    top: 38%
-  }
-}
 
 .hero-form .recaptcha-row {
   margin-top: 10px
@@ -5692,6 +5723,36 @@ header #menu .col-sm-12 {
 header #menu .col-sm-12 {
   position: relative
 }
+
+@media (max-width: 991px) {
+  /* the menu bar turns opaque and stays fixed below 992px, so start the hero
+     under it — otherwise it hides the top of the slide, "Avant" included */
+  .home-hero {
+    margin-top: 100px
+  }
+
+  /* and there is no room to overlay a form this tall: the slide keeps the top
+     row only and the form stacks under it */
+  .home-hero > .bandeau {
+    grid-row: 1
+  }
+
+  .home-hero > .lang {
+    padding-top: 30px
+  }
+
+  .home-hero > .hero-form {
+    padding: 40px 0
+  }
+
+  /* the fields above are floated halves here; without this the block lands
+     alongside them instead of under */
+  .pre-reservation .recaptcha-row {
+    clear: both;
+    width: 100%
+  }
+}
+
 @media (max-width: 991px) {
   .content-wrap .row > [class*="col-sm-"],
   .content-wrap .row > [class*="col-md-"],
@@ -5739,14 +5800,6 @@ header #menu .col-sm-12 {
     margin-top: 0
   }
 
-  /* too little room to overlay: stack the form under the slide instead */
-  .home-hero {
-    display: block
-  }
-
-  .home-hero > .hero-form {
-    padding: 40px 0
-  }
 
   .pre-reservation .clabel,
   .pre-reservation [class*="col-"] {
@@ -5757,6 +5810,7 @@ header #menu .col-sm-12 {
     width: 100%;
     padding: 20px 15px
   }
+
 
   .title6 {
     font-size: 22px;
@@ -5830,6 +5884,31 @@ section img.img-responsive {
   display: block
 }
 
+/* The six cards are floats of unequal height, so a tall one snags the next row
+   and the grid staggers (worst around 992-1199px). Lay the row out with flex so
+   every card starts on its own line and stretches to the tallest of its row. */
+@media (min-width: 992px) {
+  .bgprestation .col-sm-12 > .row {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap
+  }
+
+  .bgprestation .col-sm-12 > .row > .col-md-4 {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    float: none
+  }
+
+  .bgprestation .col-sm-12 > .row > .col-md-4 > .box2 {
+    width: 100%
+  }
+}
+
 /* Responsive — tablet: 2 columns for service cards */
 @media (min-width: 768px) and (max-width: 991px) {
   .bggrey2 .row > .col-sm-4 {
@@ -5847,11 +5926,23 @@ section img.img-responsive {
   }
 }
 
-#gal .avantapres {
+/* Gallery images always render 16/9, whatever the source file's ratio, so the
+   rows stay even on every screen. */
+#gal .avantapres,
+#gal .thumbnail img {
   width: 100% !important;
   max-width: 100%;
   height: auto !important;
-  object-fit: contain
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+  display: block
+}
+
+#gal .thumbnail {
+  height: auto
 }
 
 article.two .service-blocks {
